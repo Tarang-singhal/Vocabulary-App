@@ -9,6 +9,7 @@ const rp = require("request-promise");
 const Word = require("./models/Word");
 
 app.use(cors());
+
 app.use("/graphql", graphqlHTTP({
     schema: buildSchema(`
         type wordType{
@@ -41,8 +42,8 @@ app.use("/graphql", graphqlHTTP({
                 method: "GET",
                 url: `https://od-api.oxforddictionaries.com/api/v2/entries/en-gb/${args.word}?fields=%2Cdefinitions%2Cexamples&strictMatch=${true}`,
                 headers:{
-                    app_id: "cfc735b6",
-                    app_key: "1a44b6a0b4b3c69cf8ade1282911cca7"
+                    app_id: process.env.app_id || "cfc735b6",
+                    app_key: process.env.app_key || "1a44b6a0b4b3c69cf8ade1282911cca7"
                 },
                 json: true
             }
