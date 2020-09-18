@@ -15,27 +15,29 @@ class App extends React.Component{
     }
   }
 
-  requestBody={
-    query:`
-      query{
-        words{
-          _id
-          word
-          results{
-            lexicalEntries{
-              lexicalCategory{
-                text
-              }
-              entries{
-                senses{
-                  definitions
-                  examples{
-                    text
-                  }
-                  subsenses{
+  componentDidMount= ()=>{
+    const requestBody={
+      query:`
+        query{
+          words{
+            _id
+            word
+            results{
+              lexicalEntries{
+                lexicalCategory{
+                  text
+                }
+                entries{
+                  senses{
                     definitions
                     examples{
                       text
+                    }
+                    subsenses{
+                      definitions
+                      examples{
+                        text
+                      }
                     }
                   }
                 }
@@ -43,14 +45,12 @@ class App extends React.Component{
             }
           }
         }
-      }
-    `
-  }
+      `
+    }
 
-  componentDidMount= ()=>{
     fetch("/graphql",{
       method: "POST",
-      body: JSON.stringify(this.requestBody),
+      body: JSON.stringify(requestBody),
       headers:{
         'Content-Type': 'application/json',
       }
@@ -77,9 +77,44 @@ class App extends React.Component{
       return;
     }
 
+    const requestBody={
+      query:`
+        mutation{
+          addWord(word:"${word}"){
+            _id
+            word
+            results{
+              lexicalEntries{
+                lexicalCategory{
+                  text
+                }
+                entries{
+                  senses{
+                    definitions
+                    examples{
+                      text
+                    }
+                    subsenses{
+                      definitions
+                      examples{
+                        text
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      `
+    }
+
+    // definition
+    //         lexicalCategory
+
     fetch("/graphql",{
       method: "POST",
-      body: JSON.stringify(this.requestBody),
+      body: JSON.stringify(requestBody),
       headers:{
         'Content-Type': 'application/json',
       }

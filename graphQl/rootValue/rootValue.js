@@ -6,7 +6,7 @@ module.exports = {
     
 words: async()=>{
             return new Promise((resolve,reject)=>{
-                MongoClient.connect(DATABASEURL,(err,db)=>{
+                MongoClient.connect(DATABASEURL,{useUnifiedTopology: true},(err,db)=>{
                     if (err) reject(err);
                     var dbo = db.db("vocab");
                     dbo.collection("words").find({}).sort({_id:-1}).toArray((err,result)=>{
@@ -39,7 +39,7 @@ addWord: async(args)=>{
             });
             return new Promise((resolve,reject)=>{
                 
-                MongoClient.connect(DATABASEURL,(err,db)=>{
+                MongoClient.connect(DATABASEURL,{useUnifiedTopology: true},(err,db)=>{
                     if (err) reject(err);
                     var dbo = db.db("vocab");
                     dbo.collection("words").insertOne(data, function(err, res) {
@@ -49,7 +49,7 @@ addWord: async(args)=>{
                         resolve(res.ops[0]);
                     });
                 })
-            }).then((data)=>{return data;})
+            }).then((x)=>{return x;})
             .catch((err)=>err);
         }
 }
