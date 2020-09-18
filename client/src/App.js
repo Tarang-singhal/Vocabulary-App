@@ -1,6 +1,7 @@
 import React from 'react';
-import Words from "./components/words/Words";
 import AppBar from "./components/appbar/searchAppBar";
+import Words from "./components/words/Words";
+import SearchWords from "./components/searchWords/SearchWords"
 
 
 class App extends React.Component{
@@ -8,27 +9,48 @@ class App extends React.Component{
     super();
     this.state={
       c:[],
-      word:""
+      showList: true,
+      word:"",
+      searchWord: ""
     }
   }
 
-  componentDidMount= ()=>{
-    const requestBody={
-      query:`
-        query{
-          words{
-            _id
-            word
-            definition
-            lexicalCategory
+  requestBody={
+    query:`
+      query{
+        words{
+          _id
+          word
+          results{
+            lexicalEntries{
+              lexicalCategory{
+                text
+              }
+              entries{
+                senses{
+                  definitions
+                  examples{
+                    text
+                  }
+                  subsenses{
+                    definitions
+                    examples{
+                      text
+                    }
+                  }
+                }
+              }
+            }
           }
         }
-      `
-    }
+      }
+    `
+  }
 
+  componentDidMount= ()=>{
     fetch("/graphql",{
       method: "POST",
-      body: JSON.stringify(requestBody),
+      body: JSON.stringify(this.requestBody),
       headers:{
         'Content-Type': 'application/json',
       }
@@ -49,53 +71,55 @@ class App extends React.Component{
   }
 
   handleSubmit = () => {
-    var word = this.state.word;
+    var word = this.state.word.toLowerCase();
     console.log(word);
     if(word.trim().length === 0){
       return;
     }
 
-    const requestBody={
-      query:`
-        mutation{
-          addWord(word:"${word}"){
-            _id
-            word
-            definition
-            lexicalCategory
-          }
-        }
-      `
-    }
-
     fetch("/graphql",{
       method: "POST",
-      body: JSON.stringify(requestBody),
+      body: JSON.stringify(this.requestBody),
       headers:{
         'Content-Type': 'application/json',
       }
-    })
-      .then((res)=>res.json())
-      .then((c)=>{
+    }).then((res)=>res.json())
+    .then((c)=>{
+        console.log(c);
+        if(!c.data.addWord){
+          throw new Error("Word not found!")
+        }
         var object = c.data.addWord;
         var objects=[...this.state.c];
         objects.unshift(object);
         this.setState({
           c: objects
         })
-        console.log(c);
     }).catch((err)=>{
       console.log(err);
-    })
+      alert(err);
+    });
+  }
+
+  handleSearchWord = (event) =>{
+    // console.log(event.target.value);
+    this.setState({
+      searchWord: event.target.value.toLowerCase(),
+      showList: false
+    });
   }
 
   render(){
     return(
       <div>
-        <AppBar submit={this.handleSubmit} change={this.handleChange}/>
+        <AppBar submit={this.handleSubmit} searchWord={this.handleSearchWord} change={this.handleChange}/>
         <br/>
         <br/>
-        <Words words={this.state.c} />
+        {this.state.showList?
+          <Words words={this.state.c} />
+          :
+          <SearchWords words={this.state.c} searchedWord={this.state.searchWord} />
+        }
         {/* <AddNew submit={this.handleSubmit} change={this.handleChange}></AddNew> */}
       </div>
     )
