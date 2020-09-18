@@ -3,7 +3,7 @@ import Word from "../words/word/Word"
 class SearchWords extends React.Component{
     render(){
         return(
-            <div>
+            <div style={{marginTop: "80px"}}>
                 {
                     
                     this.props.words.map((word)=>{

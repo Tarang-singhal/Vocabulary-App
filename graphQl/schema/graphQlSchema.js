@@ -1,6 +1,6 @@
 const { buildSchema } = require("graphql");
 
-
+//Schema for GraphQL API
 var Schema = buildSchema(`
 
 type LexicalCategory {
@@ -67,4 +67,5 @@ schema{
 }
 `);
 
+//exporting Schema
 module.exports = Schema;

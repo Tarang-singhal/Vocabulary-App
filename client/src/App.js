@@ -5,8 +5,11 @@ import SearchWords from "./components/searchWords/SearchWords"
 
 
 class App extends React.Component{
+  //Constructor
   constructor(){
     super();
+
+    //State of component
     this.state={
       c:[],
       showList: true,
@@ -15,7 +18,11 @@ class App extends React.Component{
     }
   }
 
+  //invoked when component mount successfully
+  //It also make a graphQl API call to retrieve the data from backend
   componentDidMount= ()=>{
+
+    //GraphQl API call structure
     const requestBody={
       query:`
         query{
@@ -33,12 +40,6 @@ class App extends React.Component{
                     examples{
                       text
                     }
-                    subsenses{
-                      definitions
-                      examples{
-                        text
-                      }
-                    }
                   }
                 }
               }
@@ -48,6 +49,8 @@ class App extends React.Component{
       `
     }
 
+    //Fetching data
+    //all possible errors are handeled
     fetch("/graphql",{
       method: "POST",
       body: JSON.stringify(requestBody),
@@ -56,27 +59,34 @@ class App extends React.Component{
       }
     })
       .then((res)=>res.json())
+
+      //setting state using fetced data
       .then((data)=>{
         this.setState({
           c:data.data.words
         })
-        console.log(this.state.c);
+      }).catch((err)=>{
+        alert(err);
       })
   }
 
+  //invoked when a change occurs in search bar input field
   handleChange = event =>{
     this.setState({
       word: event.target.value
     })
   }
 
+  //invoked when user tries to add a word in dictionary
+  //it will send a GraphQl mutation request to add that word in database
   handleSubmit = () => {
+    //Word enterd by user
     var word = this.state.word.toLowerCase();
-    console.log(word);
     if(word.trim().length === 0){
       return;
     }
 
+    //Request structure for mutation call
     const requestBody={
       query:`
         mutation{
@@ -94,12 +104,6 @@ class App extends React.Component{
                     examples{
                       text
                     }
-                    subsenses{
-                      definitions
-                      examples{
-                        text
-                      }
-                    }
                   }
                 }
               }
@@ -109,9 +113,8 @@ class App extends React.Component{
       `
     }
 
-    // definition
-    //         lexicalCategory
-
+    //sending word to backend side
+    //all possible errors are handeled
     fetch("/graphql",{
       method: "POST",
       body: JSON.stringify(requestBody),
@@ -120,7 +123,6 @@ class App extends React.Component{
       }
     }).then((res)=>res.json())
     .then((c)=>{
-        console.log(c);
         if(!c.data.addWord){
           throw new Error("Word not found!")
         }
@@ -136,26 +138,25 @@ class App extends React.Component{
     });
   }
 
+  //Search handler
   handleSearchWord = (event) =>{
-    // console.log(event.target.value);
     this.setState({
       searchWord: event.target.value.toLowerCase(),
       showList: false
     });
   }
 
+  //will return list of word present in database 
+  //along with other components
   render(){
     return(
       <div>
         <AppBar submit={this.handleSubmit} searchWord={this.handleSearchWord} change={this.handleChange}/>
-        <br/>
-        <br/>
         {this.state.showList?
           <Words words={this.state.c} />
           :
           <SearchWords words={this.state.c} searchedWord={this.state.searchWord} />
         }
-        {/* <AddNew submit={this.handleSubmit} change={this.handleChange}></AddNew> */}
       </div>
     )
   }
