@@ -2,6 +2,7 @@ import React from "react";
 import Word from "../words/word/Word"
 class SearchWords extends React.Component{
     render(){
+        //returns the found words while searching
         return(
             <div style={{marginTop: "80px"}}>
                 {

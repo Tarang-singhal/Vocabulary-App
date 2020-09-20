@@ -3,6 +3,7 @@ import Word from "./word/Word"
 class Words extends React.Component{
 
     render(){
+        //returns the word component stored
         return(
             <div style={{marginTop: "80px"}}>
                 {

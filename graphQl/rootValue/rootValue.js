@@ -3,7 +3,8 @@ var MongoClient = require('mongodb').MongoClient;
 var DATABASEURL = process.env.DATABASEURL || "mongodb://localhost/vocab";
 
 module.exports = {
-    
+
+    // this function returns all words stored in database
     words: async()=>{
                 return new Promise((resolve,reject)=>{
                     MongoClient.connect(DATABASEURL,{useUnifiedTopology: true},(err,db)=>{
@@ -20,7 +21,12 @@ module.exports = {
                 }).catch((err)=>err);
             },
 
+    //when a user adds a new word this function is called 
+    //this function will make an API call to Oxford-Dictionary to get the data of that word if it is present
+    //and the, save that data into database and return the saved word data to client side
     addWord: async(args)=>{
+        
+                //options while making oxford API call
                 const option={
                     method: "GET",
                     url: `https://od-api.oxforddictionaries.com/api/v2/entries/en-gb/${args.word}?fields=%2Cdefinitions%2Cexamples&strictMatch=${true}`,
@@ -31,14 +37,18 @@ module.exports = {
                     json: true
                 }
                 
+                //API call and recieving data
                 var data = await rp(option,(err)=>{
                     if(err){
                         console.error('error:', err); // Print the error if one occurred
                         reject(err);
                     }
                 });
+
+
                 return new Promise((resolve,reject)=>{
-                    
+
+                    //saving recieved data to mongoDB
                     MongoClient.connect(DATABASEURL,{useUnifiedTopology: true},(err,db)=>{
                         if (err) reject(err);
                         var dbo = db.db("vocab");
@@ -49,7 +59,9 @@ module.exports = {
                             resolve(res.ops[0]);
                         });
                     })
-                }).then((x)=>{return x;})
+                })
+                //returning new word
+                .then((x)=>{return x;})
                 .catch((err)=>err);
             }
 }
