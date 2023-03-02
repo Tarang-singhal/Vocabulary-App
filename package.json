@@ -73,5 +73,9 @@
         "heroku-postbuild": "NPM_CONFIG_PRODUCTION=false npm install --prefix client && npm run build --prefix client"
     },
     "author": "Tarang Singhal",
-    "license": "ISC"
+    "license": "ISC",
+    "engines": {
+        "npm": ">=8.0.0 <9.0.0",
+        "node": ">=16.0.0 <17.0.0"
+    }
 }
