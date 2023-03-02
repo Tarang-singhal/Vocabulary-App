@@ -1,0 +1,1 @@
+{"version":3,"sources":["index.css"],"names":[],"mappings":"AAAA,IACI,WAAY,CACZ,QAAS,CACT,UACJ,CAEA,KACI,QAAS,CACT,YACJ","file":"main.5d2ae11d.chunk.css","sourcesContent":["#id {\n    height: 100%;\n    margin: 0;\n    width: 100%;\n}\n\nbody{\n    margin: 0;\n    display: flex;\n}"]}

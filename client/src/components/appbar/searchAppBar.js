@@ -18,24 +18,24 @@ const useStyles = Styles;
 export default function SearchAppBar(props) {
   const classes = useStyles();
   const [open, setOpen] = React.useState(false);
-  const handleModel = () =>{
+  const handleModel = () => {
     setOpen(true);
   }
   const handleClose = () => {
     setOpen(false);
   };
-  const handleSubmit= (event) =>{
+  const handleSubmit = (event) => {
     event.preventDefault();
     props.submit();
     handleClose();
   }
   const body = (
     <Paper className={classes.paper}>
-        <form onSubmit={handleSubmit} className={classes.form}>
-          <TextField autoFocus={true} onChange={(event)=>props.change(event)} label="Word..." />
-          <FormHelperText>Enter a new Word</FormHelperText>
-          <Button type="submit" variant="contained" color="primary">ADD</Button>
-        </form>
+      <form onSubmit={handleSubmit} className={classes.form}>
+        <TextField disabled={props.isLoading} autoFocus={true} onChange={(event) => props.change(event)} label="Word..." />
+        <FormHelperText>Enter a new Word</FormHelperText>
+        <Button disabled={props.isLoading} type="submit" variant="contained" color="primary">ADD</Button>
+      </form>
     </Paper>
   );
 
@@ -56,6 +56,7 @@ export default function SearchAppBar(props) {
                 root: classes.inputRoot,
                 input: classes.inputInput,
               }}
+              disabled={props.isLoading}
               inputProps={{ 'aria-label': 'search' }}
               onChange={props.searchWord}
             />
@@ -64,7 +65,7 @@ export default function SearchAppBar(props) {
       </AppBar>
 
 
-      <Fab className={classes.fab} color="primary" onClick={handleModel}><AddIcon/></Fab>
+      <Fab className={classes.fab} color="primary" disabled={props.isLoading} onClick={handleModel}><AddIcon /></Fab>
 
 
 

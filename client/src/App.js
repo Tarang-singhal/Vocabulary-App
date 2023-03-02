@@ -2,29 +2,35 @@ import React from 'react';
 import AppBar from "./components/appbar/searchAppBar";
 import Words from "./components/words/Words";
 import SearchWords from "./components/searchWords/SearchWords"
+import Loader from "@material-ui/core/CircularProgress"
+import { rgbToHex } from '@material-ui/core';
 
 
-class App extends React.Component{
+class App extends React.Component {
   //Constructor
-  constructor(){
+  constructor() {
     super();
 
     //State of component
-    this.state={
-      c:[],
+    this.state = {
+      c: [],
       showList: true,
-      word:"",
-      searchWord: ""
+      word: "",
+      searchWord: "",
+      isLoading: true
     }
   }
 
   //invoked when component mount successfully
   //It also make a graphQl API call to retrieve the data from backend
-  componentDidMount= ()=>{
-
+  componentDidMount = () => {
+    this.setState({
+      ...this.state,
+      isLoading: true
+    })
     //GraphQl API call structure
-    const requestBody={
-      query:`
+    const requestBody = {
+      query: `
         query{
           words{
             _id
@@ -51,28 +57,35 @@ class App extends React.Component{
 
     //Fetching data
     //all possible errors are handeled
-    fetch("/graphql",{
+    fetch("/graphql", {
       method: "POST",
       body: JSON.stringify(requestBody),
-      headers:{
+      headers: {
         'Content-Type': 'application/json',
       }
     })
-      .then((res)=>res.json())
+      .then((res) => res.json())
 
       //setting state using fetced data
-      .then((data)=>{
+      .then((data) => {
         this.setState({
-          c:data.data.words
+          ...this.state,
+          c: data.data.words
         })
-      }).catch((err)=>{
+      }).catch((err) => {
         alert(err);
+      }).finally(() => {
+        this.setState({
+          ...this.state,
+          isLoading: false
+        })
       })
   }
 
   //invoked when a change occurs in search bar input field
-  handleChange = event =>{
+  handleChange = event => {
     this.setState({
+      ...this.state,
       word: event.target.value
     })
   }
@@ -81,14 +94,18 @@ class App extends React.Component{
   //it will send a GraphQl mutation request to add that word in database
   handleSubmit = () => {
     //Word enterd by user
+    this.setState({
+      ...this.state,
+      isLoading: true
+    })
     var word = this.state.word.toLowerCase();
-    if(word.trim().length === 0){
+    if (word.trim().length === 0) {
       return;
     }
 
     //Request structure for mutation call
-    const requestBody={
-      query:`
+    const requestBody = {
+      query: `
         mutation{
           addWord(word:"${word}"){
             _id
@@ -115,31 +132,36 @@ class App extends React.Component{
 
     //sending word to backend side
     //all possible errors are handeled
-    fetch("/graphql",{
+    fetch("/graphql", {
       method: "POST",
       body: JSON.stringify(requestBody),
-      headers:{
+      headers: {
         'Content-Type': 'application/json',
       }
-    }).then((res)=>res.json())
-    .then((c)=>{
-        if(!c.data.addWord){
+    }).then((res) => res.json())
+      .then((c) => {
+        if (!c.data.addWord) {
           throw new Error("Word not found!")
         }
         var object = c.data.addWord;
-        var objects=[...this.state.c];
+        var objects = [...this.state.c];
         objects.unshift(object);
         this.setState({
           c: objects
         })
-    }).catch((err)=>{
-      console.log(err);
-      alert(err);
-    });
+      }).catch((err) => {
+        console.log(err);
+        alert(err);
+      }).finally(() => {
+        this.setState({
+          ...this.state,
+          isLoading: false
+        })
+      });
   }
 
   //Search handler
-  handleSearchWord = (event) =>{
+  handleSearchWord = (event) => {
     this.setState({
       searchWord: event.target.value.toLowerCase(),
       showList: false
@@ -148,16 +170,24 @@ class App extends React.Component{
 
   //will return list of word present in database 
   //along with other components
-  render(){
-    return(
-      <div>
-        <AppBar submit={this.handleSubmit} searchWord={this.handleSearchWord} change={this.handleChange}/>
-        {this.state.showList?
+  render() {
+    return (
+      <>
+        <AppBar isLoading={this.state.isLoading} submit={this.handleSubmit} searchWord={this.handleSearchWord} change={this.handleChange} />
+        {this.state.isLoading ?
+          <div style={{ width: '100%', backgroundColor: "rgba(0, 0, 0, 0.1)", height: "100%", display: 'flex', alignItems: 'center', justifyContent: "center", position: "fixed" }}>
+            <Loader size={50} thickness={6} />
+          </div>
+          :
+          null
+        }
+
+        {this.state.showList ?
           <Words words={this.state.c} />
           :
           <SearchWords words={this.state.c} searchedWord={this.state.searchWord} />
         }
-      </div>
+      </>
     )
   }
 }
