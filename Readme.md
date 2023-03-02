@@ -1,6 +1,5 @@
 A Vocabulary App where a person can add word in this app can see meaning and details of that word.
 
-
 Technoligies used:
 
 Backend:
